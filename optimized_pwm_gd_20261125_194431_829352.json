@@ -1,0 +1,161 @@
+{
+  "status": "verified",
+  "pwm_groups": [
+    [
+      1,
+      6,
+      19,
+      24
+    ],
+    [
+      2,
+      5,
+      20,
+      23
+    ],
+    [
+      3,
+      4,
+      21,
+      22
+    ],
+    [
+      7,
+      12,
+      13,
+      18
+    ],
+    [
+      8,
+      11,
+      14,
+      17
+    ],
+    [
+      9,
+      10,
+      15,
+      16
+    ]
+  ],
+  "sensor_ids": [
+    0,
+    1,
+    2
+  ],
+  "group_pwm_pct": [
+    50.0,
+    50.0,
+    27.2,
+    41.8,
+    36.7,
+    33.5
+  ],
+  "channel_pwm_pct": [
+    50.0,
+    50.0,
+    27.2,
+    27.2,
+    50.0,
+    50.0,
+    41.8,
+    36.7,
+    33.5,
+    33.5,
+    36.7,
+    41.8,
+    41.8,
+    36.7,
+    33.5,
+    33.5,
+    36.7,
+    41.8,
+    50.0,
+    50.0,
+    27.2,
+    27.2,
+    50.0,
+    50.0
+  ],
+  "sensor_f2_median": [
+    10241.0,
+    10926.0,
+    11143.0
+  ],
+  "mean_f2": 10770.0,
+  "max_deviation_pct": 4.911792014856082,
+  "worst_repeat_deviation_pct": 4.97649387603613,
+  "f2_repeats": [
+    [
+      10246,
+      10928,
+      11139
+    ],
+    [
+      10246,
+      10927,
+      11147
+    ],
+    [
+      10241,
+      10926,
+      11165
+    ],
+    [
+      10239,
+      10924,
+      11140
+    ],
+    [
+      10240,
+      10920,
+      11143
+    ]
+  ],
+  "method": "fixed_response_gradient_descent",
+  "initial_pwm_pct": 20.0,
+  "initial_f2_median": [
+    4625.0,
+    6709.0,
+    5118.0
+  ],
+  "brightness_weight": 0.5,
+  "uniformity_penalty_start_pct": 5.0,
+  "uniformity_penalty_weight": 25.0,
+  "reference_mean_f2": 5484.0,
+  "group_response_f2_per_pwm_pct": [
+    [
+      88.25,
+      57.05,
+      7.9,
+      45.2,
+      31.4,
+      3.75
+    ],
+    [
+      2.5,
+      8.05,
+      52.7,
+      3.8,
+      53.65,
+      220.7
+    ],
+    [
+      73.75,
+      62.0,
+      7.15,
+      60.75,
+      49.15,
+      4.3
+    ]
+  ],
+  "iterations": 25,
+  "accepted_steps": 24,
+  "min_loss_improvement": 0.05,
+  "convergence_patience": 5,
+  "stop_reason": "no_improving_step",
+  "final_loss": -41.18514036341881,
+  "uniformity_penalty": 0.0,
+  "sensor_rms_difference_f2": 384.4069024701126,
+  "sensor_max_minus_min_f2": 902.0
+}

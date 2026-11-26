@@ -1,0 +1,31 @@
+{
+  "sensor_ids": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "reference_sensor_id": 0,
+  "spectral_channel": "F2",
+  "led_pwm_pct": 50.0,
+  "samples_per_point": 10,
+  "f2_dark_offsets": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "f2_correction_factors": [
+    1.0,
+    1.163499495088589,
+    1.07732411526365,
+    1.0060327036037466
+  ],
+  "f2_light_medians": [
+    19011.0,
+    16339.5,
+    17646.5,
+    18897.0
+  ],
+  "correction_formula": "(raw_f2 - f2_dark_offset) * f2_correction_factor"
+}

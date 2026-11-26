@@ -1,0 +1,192 @@
+{
+  "status": "verified",
+  "pwm_groups": [
+    [
+      1,
+      6,
+      19,
+      24
+    ],
+    [
+      2,
+      5,
+      20,
+      23
+    ],
+    [
+      3,
+      4,
+      21,
+      22
+    ],
+    [
+      7,
+      12,
+      13,
+      18
+    ],
+    [
+      8,
+      11,
+      14,
+      17
+    ],
+    [
+      9,
+      10,
+      15,
+      16
+    ]
+  ],
+  "sensor_ids": [
+    0,
+    1,
+    2
+  ],
+  "group_pwm_pct": [
+    48.5,
+    50.0,
+    50.0,
+    41.5,
+    41.2,
+    24.0
+  ],
+  "channel_pwm_pct": [
+    48.5,
+    50.0,
+    50.0,
+    50.0,
+    50.0,
+    48.5,
+    41.5,
+    41.2,
+    24.0,
+    24.0,
+    41.2,
+    41.5,
+    41.5,
+    41.2,
+    24.0,
+    24.0,
+    41.2,
+    41.5,
+    48.5,
+    50.0,
+    50.0,
+    50.0,
+    50.0,
+    48.5
+  ],
+  "sensor_f2_median": [
+    12336.0,
+    11996.0,
+    11385.0
+  ],
+  "mean_f2": 11905.666666666666,
+  "max_deviation_pct": 4.3732676316599886,
+  "worst_repeat_deviation_pct": 4.437853265431748,
+  "f2_repeats": [
+    [
+      12358,
+      12003,
+      11390
+    ],
+    [
+      12336,
+      11996,
+      11385
+    ],
+    [
+      12335,
+      11997,
+      11385
+    ],
+    [
+      12358,
+      11996,
+      11384
+    ],
+    [
+      12334,
+      11989,
+      11379
+    ]
+  ],
+  "method": "fixed_response_gradient_descent",
+  "initial_pwm_pct": 50.0,
+  "initial_f2_median": [
+    19435.0,
+    14816.0,
+    14122.0
+  ],
+  "brightness_weight": 0.5,
+  "uniformity_penalty_start_pct": 5.0,
+  "uniformity_penalty_weight": 25.0,
+  "reference_mean_f2": 16124.333333333334,
+  "group_response_f2_per_pwm_pct": [
+    [
+      1.48,
+      5.84,
+      55.14,
+      1.66,
+      53.34,
+      249.26
+    ],
+    [
+      28.58,
+      25.16,
+      6.58,
+      120.68,
+      99.2,
+      25.66
+    ],
+    [
+      2.68,
+      34.26,
+      138.76,
+      3.46,
+      21.18,
+      88.92
+    ]
+  ],
+  "step_l2_pct": 3.0,
+  "final_step_l2_pct": 0.375,
+  "iterations": 21,
+  "best_iteration": 16,
+  "best_search_loss": 15.359749849155142,
+  "accepted_steps": 21,
+  "step_decay_patience": 2,
+  "no_improvement_patience": 5,
+  "stop_reason": "no_new_best",
+  "optimized_pwm_pct": [
+    97.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    97.0,
+    83.0,
+    82.4,
+    48.0,
+    48.0,
+    82.4,
+    83.0,
+    83.0,
+    82.4,
+    48.0,
+    48.0,
+    82.4,
+    83.0,
+    97.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    97.0
+  ],
+  "final_loss": 15.521862636830638,
+  "uniformity_penalty": 0.0,
+  "sensor_rms_difference_f2": 393.4635377713614,
+  "sensor_max_minus_min_f2": 951.0,
+  "iteration_log_csv": "optimized_pwm_gd_20261126_102932_181897_iterations.csv"
+}

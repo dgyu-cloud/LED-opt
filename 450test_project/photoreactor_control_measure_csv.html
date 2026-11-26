@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>광반응기 | PWM 및 센서 측정</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;color:#1d2939;background:#f5f7fb}*{box-sizing:border-box}body{margin:0;padding:24px 14px}.wrap{max-width:1100px;margin:auto}h1{font-size:25px;letter-spacing:-.5px;margin:0 0 5px}h2{font-size:17px;margin:0 0 15px}h3{font-size:14px;margin:0 0 10px}.muted{color:#66758a}.small{font-size:12px}.lead{margin:0;color:#617085;font-size:14px}.head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px}.pill{border-radius:20px;padding:7px 12px;background:#e9edf2;font-size:12px;white-space:nowrap}.pill.ok{background:#d9f4e5;color:#14693f}.banner{border:1px solid #e7d5ac;border-radius:12px;background:#fff9ec;padding:13px 15px;font-size:13px;line-height:1.7;margin-bottom:17px}.card{background:white;border:1px solid #e0e5ed;border-radius:15px;padding:19px;margin-bottom:16px;box-shadow:0 2px 8px rgba(20,40,70,.025)}.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.between{justify-content:space-between}.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:700;font-size:14px;cursor:pointer;background:#2759ce;color:#fff}.btn:disabled{opacity:.43;cursor:not-allowed}.btn.alt{background:#e9effa;color:#29416e}.btn.warn{background:#b63d41}.btn.ghost{background:#f2f5f9;color:#42556e}.btn.smallbtn{padding:6px 10px;font-size:12px}.input,select{border:1px solid #cbd4e0;border-radius:9px;padding:11px 10px;font-size:15px;background:white;color:#1d2939;width:100%}label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0 0}.hint{font-size:12px;color:#66758a;line-height:1.65;margin:12px 0 0}.metric{background:#f4f7fb;border-radius:11px;padding:13px}.metric b{font-size:25px;font-variant-numeric:tabular-nums}.metric span{display:block;color:#65758d;font-size:12px;margin-bottom:5px}.pre{background:#142033;color:#d9efe0;border-radius:9px;padding:12px;white-space:pre-wrap;overflow:auto;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;height:185px}.tablewrap{overflow:auto;border:1px solid #e3e8f0;border-radius:10px}table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}th,td{padding:9px 10px;text-align:right;border-bottom:1px solid #edf0f4;font-variant-numeric:tabular-nums}th{background:#f4f6fa;color:#495a71;font-weight:700}th:first-child,td:first-child{text-align:left}tr:last-child td{border-bottom:0}.tag{background:#e8edf7;padding:3px 7px;border-radius:7px;font-size:11px}.message{font-size:13px;color:#4e6074;min-height:20px;margin-top:10px}.no-data{text-align:center;color:#7a8798;padding:22px}.checkbox{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:normal;margin:0}.checkbox input{accent-color:#2759ce}.footer{font-size:12px;color:#65758a;margin:14px 0 0;line-height:1.6}@media(max-width:720px){.split,.grid{grid-template-columns:1fr}.head{align-items:flex-start;flex-direction:column}.card{padding:15px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="head"><div><h1>광반응기 제어 및 측정</h1><p class="lead">Teensy 4.1 · PWM 24채널 · PCA9548A · AS7341 센서 0/1/2</p></div><span class="pill" id="connectionState">USB 연결 안 됨</span></header>
+<div class="banner"><strong>연결 전 주의</strong> · 24V SMPS는 OFF로 유지한 채 USB 및 PWM 핀 매핑을 검증하세요. 화면의 <b>OFF</b>는 24V 전원을 차단하지 않습니다. Teensy가 재부팅되거나 PWM 입력이 분리되면 AL8862의 LED가 예상치 않게 켜질 수 있습니다.</div>
+<section class="card"><div class="row between"><h2>1. USB 연결</h2><div class="row"><button class="btn" id="connect">USB 연결</button><button class="btn alt" id="disconnect" disabled>연결 해제</button></div></div><p class="hint">Windows Chrome/Edge 사용 · VS Code PlatformIO의 Serial Monitor를 먼저 종료(Ctrl+C) · Teensy COM 포트 선택 · 속도 115200</p></section>
+<div class="split">
+<section class="card"><h2>2. PWM 제어</h2><div class="grid" id="channelInputs"></div><div class="actions"><button class="btn alt" id="arm" disabled>ARM</button><button class="btn" id="apply" disabled>설정 전송</button><button class="btn alt" id="status" disabled>상태 확인</button><button class="btn warn" id="off" disabled>전체 OFF</button></div><div class="message" id="pwmHint">전송 명령: SET 1 50</div><p class="hint">PWM 채널 1~24는 현재 펌웨어의 임시 GPIO 매핑 기준입니다. 실제 LED PCB 채널과의 일치는 별도로 검증해야 합니다.</p></section>
+<section class="card"><h2>3. 센서 수동 측정</h2><div class="grid"><div class="metric"><span>완료된 측정 횟수</span><b id="runCount">0</b><span>회</span></div><div class="metric"><span>누적된 센서 데이터</span><b id="rowCount">0</b><span>행</span></div></div><div class="actions"><button class="btn" id="measure" disabled>센서 측정 (1회)</button><button class="btn alt" id="download" disabled>CSV 다운로드</button><button class="btn ghost" id="reset" disabled>기록 초기화</button></div><div class="message" id="measureHint">버튼을 누를 때만 READ 명령을 전송합니다.</div><p class="hint">측정 횟수는 자유롭게 결정할 수 있습니다. 각 회차의 센서 0·1·2 결과가 누적됩니다. 연결 해제 또는 새로고침 후에도 이 브라우저의 임시 저장소에 기록을 유지하도록 구성했습니다.</p></section>
+</div>
+<section class="card"><div class="row between"><h2>4. 최근 센서 측정값</h2><span class="tag" id="lastRun">측정 전</span></div><div class="tablewrap"><table><thead><tr><th>센서</th><th>F1</th><th>F2 (445nm)</th><th>F3</th><th>F4</th><th>F5</th><th>F6 (590nm)</th><th>F7</th><th>F8</th><th>Clear</th></tr></thead><tbody id="sensorRows"><tr><td colspan="10" class="no-data">센서 측정 버튼을 눌러주세요.</td></tr></tbody></table></div><p class="hint">각 값은 AS7341 원시 측정값으로, 별도 보정 전에는 mW/cm²가 아닙니다. 측정에 실패한 센서는 오류로 표시되며 숫자를 임의로 채우지 않습니다.</p></section>
+<div class="split"><section class="card"><div class="row between"><h2>5. PWM 응답·상태</h2><button class="btn ghost smallbtn" id="clearPwm">지우기</button></div><div class="pre" id="pwmLog">PWM 응답 대기 중...</div></section><section class="card"><div class="row between"><h2>6. 통신·측정 로그</h2><button class="btn ghost smallbtn" id="clearComm">지우기</button></div><div class="pre" id="commLog">USB 연결 대기 중...</div></section></div>
+<section class="card"><h2>7. 저장 기록</h2><div class="tablewrap"><table><thead><tr><th>측정 시각 (PC)</th><th>회차</th><th>정상 센서</th><th>오류</th></tr></thead><tbody id="history"><tr><td colspan="4" class="no-data">측정 기록 없음</td></tr></tbody></table></div><p class="footer">CSV 열: timestamp, run_id, elapsed_ms, sensor, F1~F8, Clear, PWM_CH01~PWM_CH24, status. 1회 측정마다 센서 3개의 결과(성공 또는 오류)를 기록합니다. PWM 값은 웹페이지에서 명령을 전송한 설정값이며 물리 출력 확인값은 아닙니다. CSV 다운로드는 수동으로 수행해야 합니다.</p></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), enc=new TextEncoder();
+for(let ch=1;ch<=24;ch++){
+ const box=document.createElement('div'),label=document.createElement('label'),input=document.createElement('input');
+ label.htmlFor='duty'+ch;label.textContent='CH '+String(ch).padStart(2,'0')+' (%)';
+ input.id='duty'+ch;input.className='input';input.type='number';input.min='0';input.max='100';input.step='0.1';input.value='0.0';
+ box.append(label,input);$('channelInputs').append(box);
+}
+let port=null,reader=null,writer=null,connected=false,closing=false,lineBuffer='',statusBlock=false,runPending=null,runTimer=null;
+const STORE='photoreactor_manual_runs_v1';
+let runs=[];try{const v=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(v))runs=v}catch(e){}
+let lastKnownDuty=Array(24).fill(0),armed=false,lastRunId=0;
+function append(id,line){const el=$(id);if(/대기 중\.\.\./.test(el.textContent))el.textContent='';el.textContent+=line+'\n';if(el.textContent.length>14000)el.textContent=el.textContent.slice(-10000);el.scrollTop=el.scrollHeight}
+function msg(id,text){$(id).textContent=text}
+function setConnected(v){connected=v;msg('connectionState',v?'Teensy USB 연결됨':'USB 연결 안 됨');$('connectionState').classList.toggle('ok',v);$('connect').disabled=v;$('disconnect').disabled=!v;for(const id of ['arm','apply','applyAll','status','off'])$(id).disabled=!v;refreshButtons()}
+function refreshButtons(){$('measure').disabled=!connected||!!runPending;$('download').disabled=!runs.length;$('reset').disabled=!runs.length;$('runCount').textContent=runs.length;$('rowCount').textContent=runs.reduce((n,r)=>n+r.rows.length,0);renderHistory()}
+function saveRuns(){try{localStorage.setItem(STORE,JSON.stringify(runs))}catch(e){append('commLog','[저장 실패] 브라우저 저장 공간이 부족합니다. CSV를 다운로드하세요.')}}
+function renderHistory(){const el=$('history');el.replaceChildren();if(!runs.length){el.innerHTML='<tr><td colspan="4" class="no-data">측정 기록 없음</td></tr>';return;}for(const r of runs.slice(-30).reverse()){const tr=document.createElement('tr');const cells=[r.timestamp,'#'+r.localId,r.rows.filter(x=>x.status==='OK').length+'/3',r.rows.filter(x=>x.status!=='OK').map(x=>`S${x.sensor}: ${x.status}`).join('; ')||'-'];for(const s of cells){const td=document.createElement('td');td.textContent=s;tr.append(td)}el.append(tr)}}
+function renderLatest(r){$('lastRun').textContent='측정 #'+r.localId+' · '+r.timestamp;const tbody=$('sensorRows');tbody.replaceChildren();for(const v of r.rows){const tr=document.createElement('tr');const cols=[v.sensor,...(v.status==='OK'?v.values:Array(9).fill('-'))];for(const data of cols){const td=document.createElement('td');td.textContent=String(data);tr.append(td)}tbody.append(tr)}}
+if(runs.length)renderLatest(runs[runs.length-1]);refreshButtons();
+async function send(command){if(!writer){append('commLog','[전송 불가] USB 연결 없음');return false}try{await writer.write(enc.encode(command+'\n'));append('commLog','[전송] '+command);return true}catch(e){append('commLog','[전송 오류] '+e.message);return false}}
+function failPending(reason){if(!runPending)return;clearTimeout(runTimer);append('commLog','[측정 미완료] '+reason+' · CSV 누적하지 않음');msg('measureHint','측정 실패: '+reason);runPending=null;refreshButtons()}
+function finishRun(firmwareId,reported){if(!runPending){append('commLog','[수신] 대응하는 요청 없는 CSV_END '+firmwareId);return}const p=runPending;if(p.firmwareId!==null&&p.firmwareId!==firmwareId){failPending('측정번호 불일치');return}clearTimeout(runTimer);const rows=[];for(let s=0;s<3;s++){if(p.data.has(s)){const item=p.data.get(s);rows.push({sensor:s,elapsed_ms:item.elapsed_ms,values:item.values,status:'OK'})}else{rows.push({sensor:s,elapsed_ms:'',values:Array(9).fill(''),status:p.errors.get(s)||'MISSING'})}}const actual=rows.filter(x=>x.status==='OK').length;if(Number.isFinite(reported)&&actual!==reported)append('commLog',`[주의] CSV_END 정상 개수 ${reported}, 실제 수신 ${actual}`);const item={localId:(runs.length?Math.max(...runs.map(r=>r.localId))+1:1),firmwareId,timestamp:p.timestamp,pwm:p.pwm,rows};runs.push(item);saveRuns();renderLatest(item);append('commLog',`[측정 완료] #${item.localId} · 정상 ${actual}/3 · CSV 누적`);msg('measureHint',`측정 ${item.localId}회 완료 · 정상 센서 ${actual}/3 · 누적 기록 ${runs.length}회`);runPending=null;refreshButtons()}
+function handleLine(raw){const line=raw.trim();if(!line)return;
+ if(line.startsWith('CSV_BEGIN,')){const a=line.split(','),id=Number(a[1]);if(!runPending){append('commLog','[예상 외 CSV_BEGIN] '+line);return}if(!Number.isInteger(id)){failPending('잘못된 CSV_BEGIN');return}runPending.firmwareId=id;append('commLog',`[측정 시작] Teensy run ${id}`);return}
+ if(line.startsWith('CSV_ERROR,')){const a=line.split(','),id=Number(a[1]),sensor=Number(a[2]);if(runPending&&(runPending.firmwareId===null||id===runPending.firmwareId)){if(Number.isInteger(sensor)&&sensor>=0&&sensor<=2)runPending.errors.set(sensor,a.slice(3).join(',')||'ERROR');else append('commLog','[측정 오류] '+line)}else append('commLog','[오류 수신] '+line);return}
+ if(line.startsWith('CSV_END,')){const a=line.split(',');finishRun(Number(a[1]),Number(a[2]));return}
+ if(line.startsWith('CSV,')){const a=line.split(',');if(a.length!==13){append('commLog','[CSV 형식 오류] 열 개수 '+a.length+' (13 필요)');return}const id=Number(a[1]),ms=Number(a[2]),sensor=Number(a[3]),values=a.slice(4).map(Number);if(!runPending||(runPending.firmwareId!==null&&runPending.firmwareId!==id)){append('commLog','[예상 외 CSV 데이터] '+line);return}if(!Number.isInteger(sensor)||sensor<0||sensor>2||values.length!==9||values.some(n=>!Number.isFinite(n))){append('commLog','[CSV 값 오류] '+line);return}runPending.data.set(sensor,{elapsed_ms:ms,values});return}
+ if(line.includes('===== PWM STATUS')){statusBlock=true;$('pwmLog').textContent='';append('pwmLog',line);return}
+ if(/^ARMED:|^CH\d{2} \/ GPIO\d+/i.test(line)){append('pwmLog',line);return}
+ if(/^(PWM ARMED|ALL PWM|CH\d+ =|ERROR:|UNKNOWN COMMAND|PWM DEFAULT)/i.test(line)){statusBlock=false;append('pwmLog',line);return}
+ if(statusBlock&&/^(?:CH\d+|ARMED:)/i.test(line)){append('pwmLog',line);return}
+ if(/^(===== LIGHT MEASUREMENT|Sensor \d|F[1-8]|Clear:)/i.test(line)){append('commLog','[기존 자동출력 감지] Teensy 코드를 수동 측정 버전으로 업로드했는지 확인');return}
+ if(line.startsWith('===' )||line.includes('PCA9548A')||line.includes('INIT')){append('commLog','[장치] '+line);return}
+ append('commLog','[수신] '+line)
+}
+function processChunk(chunk){lineBuffer+=chunk;let idx;while((idx=lineBuffer.indexOf('\n'))>=0){const s=lineBuffer.slice(0,idx).replace(/\r$/,'');lineBuffer=lineBuffer.slice(idx+1);handleLine(s)}if(lineBuffer.length>8192){append('commLog','[수신 경고] 줄바꿈 없이 8KB 초과');lineBuffer=''}}
+async function readLoop(){const decoder=new TextDecoder();try{while(reader&&!closing){const {value,done}=await reader.read();if(done)break;if(value)processChunk(decoder.decode(value,{stream:true}))}}catch(e){if(!closing)append('commLog','[수신 실패] '+e.message)}finally{if(reader){try{reader.releaseLock()}catch(e){}reader=null}if(!closing)await disconnect()}}
+async function connect(){if(!('serial' in navigator)){alert('Chrome/Edge의 Web Serial을 사용할 수 없는 환경입니다. Chrome/Edge에서 파일을 열거나 localhost로 실행하세요.');return}try{port=await navigator.serial.requestPort();await port.open({baudRate:115200});writer=port.writable.getWriter();reader=port.readable.getReader();closing=false;setConnected(true);append('commLog','[연결] Teensy USB · 115200');void readLoop()}catch(e){append('commLog','[연결 실패] '+e.message);if(writer){try{writer.releaseLock()}catch(_){}writer=null}if(port){try{await port.close()}catch(_){}port=null}setConnected(false)}}
+async function disconnect(){closing=true;failPending('USB 연결 종료');setConnected(false);if(reader){try{await reader.cancel()}catch(_){}}if(writer){try{writer.releaseLock()}catch(_){}writer=null}if(port){try{await port.close()}catch(e){append('commLog','[종료 오류] '+e.message)}port=null}append('commLog','[연결 종료]')}
+function fmtLocal(d){const z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`}
+$('connect').onclick=connect;$('disconnect').onclick=disconnect;
+$('arm').onclick=async()=>{if(!confirm('PWM 배선과 GPIO 매핑을 확인했나요? ARM은 하드웨어 안전장치가 아닙니다.'))return;if(await send('ARM'))armed=true};
+$('apply').textContent='24채널 설정 전송';
+$('pwmHint').textContent='채널별 듀티(%) 입력 후 설정 전송';
+const allControls=document.createElement('div');
+allControls.innerHTML='<label for="allDuty">24채널 일괄 PWM (%)</label><div class="row"><input class="input" id="allDuty" type="number" min="0" max="100" step="0.1" value="0.0" style="width:150px"><button class="btn" id="applyAll" disabled>전체 적용</button></div>';
+$('channelInputs').before(allControls);
+allControls.style.marginBottom='16px';
+$('applyAll').onclick=async()=>{
+ const input=$('allDuty');
+ if(input.value.trim()===''||!input.checkValidity()){alert('듀티는 0~100 범위에서 0.1% 단위로 입력하세요.');return}
+ if(!armed){msg('pwmHint','먼저 ARM을 실행하세요.');return}
+ const duty=Number(input.value);
+ $('applyAll').disabled=true;
+ try{if(await send('ALL '+duty.toFixed(1))){
+  lastKnownDuty.fill(duty);
+  for(let ch=1;ch<=24;ch++)$('duty'+ch).value=duty.toFixed(1);
+  msg('pwmHint','전체 적용 명령 전송: ALL '+duty.toFixed(1));
+ }}finally{$('applyAll').disabled=!connected}
+};
+$('apply').onclick=async()=>{
+ const inputs=Array.from({length:24},(_,i)=>$('duty'+(i+1)));
+ if(inputs.some(input=>input.value.trim()===''||!input.checkValidity())){alert('듀티는 0~100 범위에서 0.1% 단위로 입력하세요.');return}
+ $('apply').disabled=true;$('applyAll').disabled=true;$('measure').disabled=true;
+ try{for(let i=0;i<24;i++){
+ const duty=Number(inputs[i].value);
+ if(!await send('SET '+(i+1)+' '+duty.toFixed(1))){msg('pwmHint','설정 전송 중단');return}
+ lastKnownDuty[i]=duty;
+ }msg('pwmHint','24채널 설정 명령 전송 완료');}
+ finally{$('apply').disabled=!connected;$('applyAll').disabled=!connected;refreshButtons()}
+};
+$('status').onclick=()=>void send('STATUS');$('off').onclick=async()=>{if(await send('OFF')){lastKnownDuty.fill(0);armed=false;msg('pwmHint','전체 OFF 명령 전송 (실제 출력 미검증)')}};
+$('measure').onclick=async()=>{if(runPending||!connected)return;runPending={firmwareId:null,timestamp:fmtLocal(new Date()),pwm:lastKnownDuty.slice(),data:new Map(),errors:new Map()};refreshButtons();msg('measureHint','측정 중... 센서 0·1·2 응답 수신 대기');const ok=await send('READ');if(!ok){failPending('READ 전송 실패');return}runTimer=setTimeout(()=>failPending('12초 내 CSV_END 수신되지 않음'),12000)};
+function csvCell(s){const t=String(s??'');return /[",\r\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t}
+$('download').onclick=()=>{if(!runs.length)return;const header=['timestamp','run_id','elapsed_ms','sensor','F1','F2_445nm','F3','F4','F5','F6_590nm','F7','F8','Clear',...Array.from({length:24},(_,i)=>`PWM_CH${String(i+1).padStart(2,'0')}`),'status'];const lines=[header.join(',')];for(const r of runs){for(const v of r.rows){const vals=[r.timestamp,r.localId,v.elapsed_ms,v.sensor,...v.values,...r.pwm,v.status];lines.push(vals.map(csvCell).join(','))}}const csv='\uFEFF'+lines.join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='photoreactor_measurements_'+new Date().toISOString().slice(0,10)+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);append('commLog',`[CSV 다운로드] ${runs.length}회 · ${lines.length-1}행`)};
+$('reset').onclick=()=>{if(!confirm('누적 측정 기록을 모두 지울까요? 필요하다면 먼저 CSV를 다운로드하세요.'))return;runs=[];saveRuns();$('sensorRows').innerHTML='<tr><td colspan="10" class="no-data">센서 측정 버튼을 눌러주세요.</td></tr>';$('lastRun').textContent='측정 전';refreshButtons();append('commLog','[기록 초기화]')};
+$('clearPwm').onclick=()=>{$('pwmLog').textContent=''};$('clearComm').onclick=()=>{$('commLog').textContent=''};
+window.addEventListener('beforeunload',e=>{if(connected||runPending){e.preventDefault();e.returnValue=''}});
+</script>
+</body></html>
