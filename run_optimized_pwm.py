@@ -25,6 +25,9 @@ channel_pwm =[
     100.0,
     100.0
   ]
+channel_pwm =[
+    100 for i in range(24)
+  ]
 main_power = 0.5 # 1.0 = configured PWM, 0.5 = half PWM.
 serial_port = "COM3"
 
